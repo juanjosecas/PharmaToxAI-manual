@@ -116,15 +116,15 @@ El repositorio incluye environment-gpu.yml con dependencias de PyTorch/CUDA. No 
 Pip admite instalar una revisión concreta directamente desde una URL de control de versiones:
 
 ~~~bash
-python -m pip install "git+https://github.com/juanjosecas/PharmaToxAI.git@<commit>"
+python -m pip install "git+https://github.com/juanjosecas/PharmaToxAI.git@COMMIT_SHA"
 ~~~
 
-Reemplazar <commit> por un hash real. Es una instalación no editable. Para editar código o depurar cambios, clonar el repositorio y usar -e:
+Reemplazar COMMIT_SHA por un hash real. Es una instalación no editable. Para editar código o depurar cambios, clonar el repositorio y usar -e:
 
 ~~~bash
 git clone https://github.com/juanjosecas/PharmaToxAI.git
 cd PharmaToxAI
-git checkout <commit>
+git checkout COMMIT_SHA
 python -m pip install -e .
 ~~~
 
