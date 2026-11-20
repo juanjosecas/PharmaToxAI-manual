@@ -1,0 +1,34 @@
+# Manual de PharmaToxAI
+
+Este manual presenta un flujo QSAR desde la pregunta científica hasta la
+interpretación de resultados. Está dirigido a quienes conocen química o
+toxicología y necesitan diseñar, validar y comunicar modelos de forma
+reproducible.
+
+## Recorrido de aprendizaje
+
+1. [Instala el entorno y fija las versiones](introduccion/instalacion.md).
+2. [Define la pregunta y el endpoint](introduccion/primer-qsar.md).
+3. [Prepara y documenta los datos](preparacion/datasets.md).
+4. [Entrena un baseline sin fuga de información](modelado/entrenamiento.md).
+5. [Valida el modelo y sus límites](evaluacion/validacion.md).
+6. Ejecuta el [tutorial con datos sintéticos](tutoriales/01-primer-qsar.md).
+
+## Alcance
+
+La primera edición cubre un flujo QSAR supervisado básico. Los capítulos
+posteriores podrán ampliar este recorrido a descriptores y fingerprints,
+clasificación multilabel, ADMET, dominio de aplicabilidad, incertidumbre,
+explicabilidad y requisitos regulatorios.
+
+La documentación técnica de la API pertenece a la referencia del software; el
+manual la complementará con métodos y casos reproducibles, sin duplicarla.
+Cada ejemplo que se integre con PharmaToxAI deberá declarar una versión
+distribuible concreta. No se presupone que una instalación del paquete esté
+disponible públicamente.
+
+!!! warning "Uso responsable"
+    Un modelo QSAR depende de la calidad y el ámbito de sus datos. Sus
+    predicciones no son evidencia experimental, consejo médico ni una decisión
+    regulatoria autónoma. Revisa la [validación](evaluacion/validacion.md)
+    antes de interpretar cualquier resultado.

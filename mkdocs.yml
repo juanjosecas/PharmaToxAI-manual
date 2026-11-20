@@ -1,0 +1,41 @@
+site_name: Manual de PharmaToxAI
+site_description: Guía práctica y reproducible para aplicar métodos QSAR a la seguridad química.
+site_url: https://juanjosecas.github.io/PharmaToxAI-manual/
+repo_url: https://github.com/juanjosecas/PharmaToxAI-manual
+repo_name: juanjosecas/PharmaToxAI-manual
+docs_dir: docs
+
+theme:
+  name: material
+  language: es
+  features:
+    - navigation.sections
+    - navigation.indexes
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+
+nav:
+  - Inicio: index.md
+  - Introducción:
+      - Instalación: introduccion/instalacion.md
+      - Primer QSAR: introduccion/primer-qsar.md
+  - Preparación:
+      - Datos y curación: preparacion/datasets.md
+  - Modelado:
+      - Entrenamiento: modelado/entrenamiento.md
+  - Evaluación:
+      - Validación: evaluacion/validacion.md
+  - Tutoriales:
+      - Primer modelo reproducible: tutoriales/01-primer-qsar.md
+  - Referencia:
+      - Bibliografía: referencia/bibliografia.md
