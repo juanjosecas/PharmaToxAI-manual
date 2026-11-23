@@ -55,6 +55,8 @@ nav:
   - Evaluación (Bloque B):
       - Métricas: evaluacion/metricas.md
       - Dominio de aplicabilidad: evaluacion/dominio-aplicabilidad.md
+      - Comparación de métodos AD: evaluacion/metodos-dominio.md
+      - Marco regulatorio OECD: evaluacion/marco-oecd.md
       - Validación y límites: evaluacion/validacion.md
   - Aplicaciones (Bloque C):
       - Visión general: aplicaciones/index.md
