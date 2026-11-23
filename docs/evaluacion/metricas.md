@@ -52,3 +52,95 @@ El holdout externo se evalúa **una sola vez** al cerrar la selección de modelo
 Inspeccionar residual vs actividad, errores en extremos, falsos negativos relevantes, proporciones por clase, scaffolds poco representados, duplicados entre sets y posibles desplazamientos de distribución. Distinguir datos censurados, sesgo de ensayo y error del modelo.
 
 **Fuentes:** [evaluation.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/evaluation.py), [validación general](validacion.md).
+
+
+## Definiciones matemáticas e interpretación
+
+### Regresión
+
+Con \(e_i=y_i-\hat y_i\) y \(n\) muestras:
+
+$$
+MAE=\frac{1}{n}\sum_i|e_i|,\qquad
+RMSE=\sqrt{\frac{1}{n}\sum_i e_i^2}
+$$
+
+RMSE penaliza más los grandes errores y tiene la misma unidad que el endpoint. MAE es menos sensible a errores extremos. Un valor RMSE=0.5 no significa lo mismo para pIC50 que para porcentajes de inhibición.
+
+El coeficiente de determinación calculado sobre un conjunto evaluado es
+
+$$
+R^2=1-\frac{\sum_i(y_i-\hat y_i)^2}
+{\sum_i(y_i-\bar y)^2}
+$$
+
+Puede ser negativo en test. Su interpretación depende de la variabilidad del target, por lo que comparar R² entre datasets de distinto rango puede resultar engañoso.
+
+El coeficiente de correlación concordante (CCC) combina precisión y acuerdo absoluto:
+
+$$
+CCC=\frac{2\,\operatorname{cov}(y,\hat y)}
+{\operatorname{var}(y)+\operatorname{var}(\hat y)+(\bar y-\overline{\hat y})^2}
+$$
+
+Su convención sobre el denominador de covarianza y varianza debe ser consistente. Pearson elevado no garantiza concordancia: una predicción \(\hat y=y+5\) puede tener correlación perfecta y error sistemático grande.
+
+El Q² requiere especificar su referencia y el procedimiento que generó las predicciones; Q² de predicciones out-of-fold no debe confundirse con R² de un conjunto reutilizado para selección.
+
+### Clasificación: matriz de confusión
+
+| | Predicción positiva | Predicción negativa |
+| --- | --- | --- |
+| Positivo real | TP | FN |
+| Negativo real | FP | TN |
+
+$$
+\mathrm{Sensibilidad}=\frac{TP}{TP+FN},\qquad
+\mathrm{Especificidad}=\frac{TN}{TN+FP}
+$$
+
+$$
+\mathrm{Precisión}=\frac{TP}{TP+FP},\quad
+F_1=2\frac{\mathrm{Precisión}\cdot\mathrm{Sensibilidad}}
+{\mathrm{Precisión}+\mathrm{Sensibilidad}}
+$$
+
+$$
+\mathrm{BalancedAccuracy}=\frac{\mathrm{Sensibilidad}+\mathrm{Especificidad}}{2}
+$$
+
+En clasificación binaria, MCC utiliza todas las celdas de la matriz:
+
+$$
+MCC=\frac{TP\cdot TN-FP\cdot FN}
+{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}
+$$
+
+Los casos de denominador cero requieren una convención de implementación. Accuracy puede ser alta por simple prevalencia; F1 no utiliza TN y puede ocultar mal desempeño en negativos.
+
+### Curvas y umbrales
+
+La curva ROC evalúa sensibilidad frente a \(FPR=FP/(FP+TN)\) al variar el umbral. La curva precisión–recall relaciona precisión con sensibilidad; el baseline de average precision depende de la prevalencia positiva. ROC-AUC resume ordenamiento de scores y no certifica probabilidades calibradas.
+
+La tasa Brier para binaria es
+
+$$
+BS=\frac{1}{n}\sum_i(p_i-y_i)^2
+$$
+
+La calibración describe correspondencia entre probabilidades previstas y frecuencias observadas. El umbral óptimo depende del costo de FP/FN y debe decidirse en validación.
+
+### Parámetros de evaluación
+
+| Parámetro | Decisión |
+| --- | --- |
+| average="macro" | Peso igual para cada clase, aun si son raras |
+| average="weighted" | Ponderación por soporte de cada clase |
+| average="micro" | Agrega decisiones globalmente |
+| zero_division | Convención cuando precisión/recall no están definidas |
+| threshold | Determina matriz de confusión; no modifica ranking ROC |
+| proba | Debe estar alineada con clases y orden del estimador |
+
+En el ejemplo binario del capítulo, comprobar la etiqueta correspondiente a model.classes_[1] antes de interpretar predict_proba(... )[:, 1] como probabilidad de la clase positiva. ROC-AUC y average precision requieren positivos y negativos para la interpretación habitual; una partición sin ambas clases puede producir métricas indefinidas.
+
+Para errores heterogéneos, reportar métricas por scaffold, rango de endpoint y condición de dominio de aplicabilidad, además de un resumen global.
