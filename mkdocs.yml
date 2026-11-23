@@ -32,8 +32,14 @@ nav:
       - GPU: introduccion/gpu.md
       - Verificación y diagnóstico: introduccion/verificacion.md
       - Primer QSAR: introduccion/primer-qsar.md
-  - Preparación:
-      - Datos y curación: preparacion/datasets.md
+  - Preparación molecular (Bloque A):
+      - Visión general: preparacion/index.md
+      - Carga y auditoría: preparacion/carga-datos.md
+      - Análisis exploratorio: preparacion/eda.md
+      - Curación molecular: preparacion/curacion.md
+      - Featurización: preparacion/featurizacion.md
+      - Limpieza de características: preparacion/limpieza.md
+      - Introducción a datasets: preparacion/datasets.md
   - Modelado:
       - Entrenamiento: modelado/entrenamiento.md
   - Evaluación:
