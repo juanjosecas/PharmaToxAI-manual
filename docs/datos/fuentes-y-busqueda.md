@@ -141,3 +141,46 @@ Las funciones NCI CIR incluyen `batch_cas_to_info`, `batch_name_to_info`, `batch
 ## Qué conservar en cada descarga
 
 Guardar consulta, fecha UTC, URL o identificador de fuente, versión de biblioteca, número de registros, errores, IDs originales, estructura original, unidad, tipo de endpoint, relación (`=`, `<`, `>`), ensayo, condiciones y licencia. La ausencia de un registro no equivale a actividad negativa. Ver [construcción y auditoría de datasets](construccion-datasets.md).
+
+## Visualizaciones de los datos recuperados
+
+Distribución de propiedades PubChem; el código continúa el ejemplo que creó `properties`.
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.set_theme(style="whitegrid")
+plot_df = properties.copy()
+for col in ["MolecularWeight", "XLogP", "TPSA"]:
+    if col in plot_df:
+        plot_df[col] = pd.to_numeric(plot_df[col], errors="coerce")
+cols = [c for c in ["MolecularWeight", "XLogP", "TPSA"] if c in plot_df]
+if cols and not plot_df.empty:
+    long = plot_df[cols].melt(var_name="Propiedad", value_name="Valor").dropna()
+    if not long.empty:
+        g = sns.displot(data=long, x="Valor", col="Propiedad",
+                        col_wrap=3, facet_kws={"sharex": False, "sharey": False},
+                        bins=15, height=3)
+        g.set_titles("{col_name}")
+        g.figure.suptitle("Propiedades recuperadas de PubChem", y=1.05)
+        plt.show()
+~~~
+
+El histograma con dos o tres moléculas carece de valor estadístico; aumentar el tamaño del conjunto antes de interpretar distribuciones.
+
+Para inspeccionar el desbalance de AMES (`ames` obtenido en el ejemplo TDC):
+
+~~~python
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+if "Y" in ames.columns:
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.countplot(data=ames.assign(Y=ames["Y"].astype(str)),
+                  x="Y", order=ames["Y"].astype(str).value_counts().index, ax=ax)
+    ax.set(xlabel="Etiqueta Y", ylabel="Registros", title="Distribución de clases: AMES")
+    plt.tight_layout()
+    plt.show()
+~~~
