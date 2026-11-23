@@ -114,3 +114,37 @@ Path("outputs/tutorial_03_summary.json").write_text(
 En datos experimentales también se deben conservar el commit de PharmaToxAI, unidades, identidad molecular, criterio de curación, IDs y distribución de endpoints por split. Los resultados de este ejemplo **no están verificados por ejecución de integración** en la presente edición del manual.
 
 Continuar con [particiones](../modelado/particiones.md), [entrenamiento](../modelado/entrenamiento-qsar.md), [métricas](../evaluacion/metricas.md) y [dominio de aplicabilidad](../evaluacion/dominio-aplicabilidad.md).
+
+## 6. Visualización del resultado
+
+Ejecutar después de las secciones de predicción y AD; se reutilizan `y_test`, `pred` y `flags`.
+
+~~~python
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plot_df = pd.DataFrame({
+    "Observado": np.asarray(y_test).ravel(),
+    "Predicho": np.asarray(pred).ravel(),
+})
+plot_df["Error absoluto"] = (plot_df["Observado"] - plot_df["Predicho"]).abs()
+
+fig, ax = plt.subplots(figsize=(6, 5))
+sns.scatterplot(data=plot_df, x="Observado", y="Predicho", ax=ax)
+lo = min(plot_df["Observado"].min(), plot_df["Predicho"].min())
+hi = max(plot_df["Observado"].max(), plot_df["Predicho"].max())
+ax.plot([lo, hi], [lo, hi], "k--")
+ax.set(title="Regresión: evaluación externa")
+plt.tight_layout()
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.histplot(data=plot_df, x="Error absoluto", bins=15, ax=ax)
+ax.set(title="Distribución del error absoluto")
+plt.tight_layout()
+plt.show()
+~~~
+
+El dataset de este tutorial es sintético; sus métricas y gráficos sirven para verificar el flujo, no para inferir capacidad predictiva química.
