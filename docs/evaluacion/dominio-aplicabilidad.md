@@ -24,6 +24,12 @@ La API devuelve **tres objetos**: indicadores por muestra, umbrales calibrados y
 
 El procedimiento incluye criterios derivados de Hotelling T², Mahalanobis robusto y distancia media kNN. Sus indicadores no son probabilidades de toxicidad, ni garantizan fiabilidad en otra familia química. El parámetro `alpha` controla calibración interna, no un nivel de confianza universal sobre el error predictivo.
 
+## Selección de métodos y evidencia publicada
+
+El [análisis comparativo de métodos de AD](metodos-dominio.md) amplía esta implementación con enfoques por rangos, geometría, densidad, leverage y fiabilidad predictiva. Explica la diferencia entre un **umbral de similitud** y un **umbral calibrado sobre el error**, y confronta la discusión sobre extrapolación con la literatura académica y el caso OECD QSAR Toolbox.
+
+Las tres métricas del pipeline no bastan para afirmar que un compuesto está validado para un endpoint o mecanismo. Antes de elegir un umbral, comprobar su relación empírica con los errores en predicciones independientes.
+
 ## Similitud estructural
 
 La cobertura del espacio de descriptores no reemplaza una auditoría de Tanimoto, scaffolds y fragmentos químicos. Analizar similitud train–test, presencia de análogos y pares de activity cliffs. Los métodos de distancia dependen de representación y umbral; registrar Morgan radius, número de bits y selección de columnas.
