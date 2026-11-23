@@ -46,3 +46,7 @@ incluye código interno ni datos de distribución restringida.
 Las predicciones QSAR son evidencia computacional, no asesoramiento médico ni
 una evaluación regulatoria por sí solas. Consulta las limitaciones y
 responsabilidades en el capítulo de [evaluación y validación](docs/evaluacion/validacion.md).
+
+## Bloque B — Modelado y validación
+
+El [Bloque B](docs/modelado/index.md) reúne particiones, regresión, clasificación, deep learning, [métricas](docs/evaluacion/metricas.md), [dominio de aplicabilidad](docs/evaluacion/dominio-aplicabilidad.md) y un [tutorial integrado](docs/tutoriales/03-modelado-validacion.md).
