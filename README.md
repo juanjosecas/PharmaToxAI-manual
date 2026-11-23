@@ -12,6 +12,15 @@ La [guía de fuentes del código](docs/referencia/fuentes-del-codigo.md) vincula
 El manual se publica con MkDocs Material y GitHub Pages. Consulta el
 [contenido completo](docs/index.md) o sigue el [tutorial reproducible](docs/tutoriales/01-primer-qsar.md).
 
+## Publicación en GitHub Pages
+
+Un administrador debe activar GitHub Pages en
+[Settings → Pages](https://github.com/juanjosecas/PharmaToxAI-manual/settings/pages)
+y seleccionar **GitHub Actions** como fuente en **Build and deployment**.
+Después, ejecuta de nuevo el workflow **Publish manual** desde la pestaña
+**Actions** o espera al siguiente cambio en `main`. Sin esta configuración,
+el job `deploy` falla con un error 404.
+
 ## Desarrollo local
 
 Requiere Python 3.10 o posterior:
