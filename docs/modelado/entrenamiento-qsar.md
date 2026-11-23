@@ -137,3 +137,27 @@ Para QSAR estructural, utilizar grupos en la validación interna cuando el objet
 ### Early stopping
 
 La detención temprana termina el ajuste cuando la pérdida sobre validación deja de mejorar durante una ventana de paciencia. Esta validación debe ser independiente del ajuste, incluida la transformación de features y selección supervisada. Su puntuación no reemplaza el holdout externo.
+
+## Visualización de la validación cruzada
+
+Continuación del ejemplo con `scores` obtenido mediante `cross_validate`. Mostrar dispersión entre folds en lugar de un único promedio.
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+rmse_folds = -scores["test_score"]
+plot_df = pd.DataFrame({"Fold": range(1, len(rmse_folds) + 1),
+                        "RMSE": rmse_folds})
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.barplot(data=plot_df, x="Fold", y="RMSE", color="steelblue", ax=ax)
+ax.axhline(rmse_folds.mean(), ls="--", color="black",
+           label=f"Media = {rmse_folds.mean():.3g}")
+ax.set(title="RMSE por fold de validación cruzada")
+ax.legend()
+plt.tight_layout()
+plt.show()
+~~~
+
+Estas métricas pertenecen al pipeline de Ridge del ejemplo, no al `artifact` de PharmaToxAI. No interpretar `performance_scope="training_resubstitution"` como validación externa.
