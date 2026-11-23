@@ -46,6 +46,7 @@ nav:
       - Validación: evaluacion/validacion.md
   - Tutoriales:
       - Primer modelo reproducible: tutoriales/01-primer-qsar.md
+      - Preparación molecular (Bloque A): tutoriales/02-preparacion-molecular.md
   - Referencia:
       - Bibliografía: referencia/bibliografia.md
       - Fuentes del código: referencia/fuentes-del-codigo.md
