@@ -31,13 +31,13 @@ El `scaffold_split` actual admite la columna de scaffolds y el SMILES original:
 
 ~~~python
 from pharmatoxai.splitting import scaffold_split
-from pharmatoxai.eda import compute_scaffolds
+from rdkit.Chem.Scaffolds import MurckoScaffold
 
 df = df.copy().reset_index(drop=True)
 # En producción conservar un ID original antes del reset.
 df["Scaffold"] = df["SMILES_clean"].map(
-    lambda s: None if not isinstance(s, str) else
-    __import__("rdkit.Chem.Scaffolds", fromlist=["MurckoScaffold"]).MurckoScaffold.MurckoScaffoldSmiles(smiles=s)
+    lambda s: MurckoScaffold.MurckoScaffoldSmiles(smiles=s)
+    if isinstance(s, str) and s else None
 )
 
 train_idx, test_idx, train_df, test_df = scaffold_split(
