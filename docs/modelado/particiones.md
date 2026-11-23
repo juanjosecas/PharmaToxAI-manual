@@ -133,3 +133,28 @@ La función asigna los puntos seleccionados a **test**; esta elección de implem
 ### Recomendación de diagnóstico
 
 Guardar ID, grupo, método, semilla y asignación de cada registro. Verificar además la distribución del endpoint, la mínima distancia train–test, identidad química compartida y proporción de grupos grandes. Si se particiona a nivel de grupos, la CV interna también debe respetar grupos para estimar una tarea comparable.
+
+## Gráfico de balance train/test
+
+Continuación del ejemplo que define `train_df` y `test_df`. Para un endpoint continuo:
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plot_df = pd.concat([
+    train_df[["Activity"]].assign(Partición="Train"),
+    test_df[["Activity"]].assign(Partición="Test")
+], ignore_index=True)
+plot_df["Activity"] = pd.to_numeric(plot_df["Activity"], errors="coerce")
+fig, ax = plt.subplots(figsize=(7, 4))
+sns.histplot(data=plot_df.dropna(), x="Activity", hue="Partición",
+             stat="density", common_norm=False, element="step",
+             fill=False, bins=20, ax=ax)
+ax.set(title="Distribución del endpoint por partición", xlabel="Activity")
+plt.tight_layout()
+plt.show()
+~~~
+
+Para endpoints categóricos sustituir por `sns.countplot`. Comparar también scaffolds compartidos y similitud máxima train–test; una distribución similar del endpoint no demuestra independencia química.
