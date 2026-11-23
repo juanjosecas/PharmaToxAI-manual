@@ -70,3 +70,68 @@ No concatenar representaciones sin comprobar escalas, duplicidad de columnas, id
 Tabla de características alineada con identificadores, manifiesto de descriptores (backend, opciones, versión RDKit), matriz de faltantes y recuento de filas descartadas. El siguiente paso es la [limpieza de características](limpieza.md).
 
 **Fuentes:** [featurization.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/featurization.py), [documentación](https://github.com/juanjosecas/PharmaToxAI/blob/main/docs/featurization.md), [notebook 02](https://github.com/juanjosecas/PharmaToxAI/blob/main/notebooks/02_Featurization_Cleaning_Splitting%20of%20Molecular%20Dataset.ipynb).
+
+
+## Fundamentos de las representaciones moleculares
+
+La featurización transforma el grafo curado \(G_i\) en un vector:
+
+$$
+\phi:G_i\mapsto x_i\in\mathbb{R}^{p},\qquad
+X=[x_1^\top;\ldots;x_n^\top]
+$$
+
+El algoritmo solo puede aprender de la información retenida por \(\phi\). Descriptores 2D, fingerprints, geometría 3D y propiedades QM codifican propiedades distintas, con costes y supuestos diferentes.
+
+### Descriptores fisicoquímicos
+
+La masa molecular suele expresarse en g/mol, TPSA en unidades de superficie y las variables como logP son adimensionales. Para la especie neutra, el coeficiente de reparto octanol/agua se define como
+
+$$
+\log P=\log_{10}\frac{c_{\mathrm{octanol}}}{c_{\mathrm{agua}}}
+$$
+
+No equivale a logD a pH específico, que depende de ionización. Descriptores computados no sustituyen directamente datos experimentales.
+
+### Morgan: radio, bits y hashing
+
+Los fingerprints circulares codifican entornos atómicos refinados iterativamente hasta un radio \(r\). Un identificador de entorno activa una posición en un vector binario de tamaño \(m\):
+
+$$
+b_j=\mathbf{1}(\text{algún entorno se asigna al bit }j),\quad j=1,\ldots,m
+$$
+
+| Parámetro | Significado |
+| --- | --- |
+| radius=2 | Entornos a hasta dos enlaces del átomo central; diámetro nominal cuatro (ECFP4) |
+| n_bits=2048 | Dimensión y riesgo de colisiones por hashing |
+| fp_type="morgan" | Huella circular de entornos atómicos |
+| fp_type="maccs" | Claves de subestructuras predefinidas; RDKit produce 167 bits |
+| Política de curación | Define qué grafo y qué cargas reciben los algoritmos |
+
+Una colisión ocurre cuando entornos distintos activan el mismo bit. Aumentar n_bits reduce ciertas colisiones esperadas, pero no garantiza mejores métricas predictivas.
+
+### Tanimoto/Jaccard y densidad
+
+Para conjuntos de bits activos \(A,B\):
+
+$$
+T(A,B)=\frac{|A\cap B|}{|A\cup B|}=\frac{c}{a+b-c},
+\qquad d_J=1-T
+$$
+
+\(a\) y \(b\) son números de bits activos; \(c\), bits compartidos. Cuando ambos vectores están vacíos, la expresión no está definida: calculate_jaccard_distance() **devuelve 1.0** como convención de implementación.
+
+La densidad de un fingerprint binario es
+
+$$
+\rho_i=\frac{1}{m}\sum_{j=1}^{m}b_{ij}
+$$
+
+fingerprint_bit_density() calcula la media por fila: pasar **solo columnas binarias**, sin target u otros descriptores.
+
+### Dimensionalidad y representación
+
+El cociente \(p/n\) resume dimensionalidad relativa, pero no determina por sí solo la generalización. Un fingerprint de 2048 bits con pocos compuestos exige regularización y validación cuidadosa. La distancia euclidiana entre descriptores escalados y Tanimoto sobre bits comparan geometrías diferentes.
+
+Los descriptores electrónicos xTB dependen también de conformación, carga, estado de espín, método y solvente. Compararlos con variables 2D requiere registrar esa configuración y la política de fallos. Una similitud estructural alta no implica similitud farmacológica: pueden existir activity cliffs.
