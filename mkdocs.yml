@@ -28,6 +28,9 @@ nav:
   - Inicio: index.md
   - Introducción:
       - Instalación: introduccion/instalacion.md
+      - Gestión de entornos: introduccion/entornos.md
+      - GPU: introduccion/gpu.md
+      - Verificación y diagnóstico: introduccion/verificacion.md
       - Primer QSAR: introduccion/primer-qsar.md
   - Preparación:
       - Datos y curación: preparacion/datasets.md
@@ -39,3 +42,4 @@ nav:
       - Primer modelo reproducible: tutoriales/01-primer-qsar.md
   - Referencia:
       - Bibliografía: referencia/bibliografia.md
+      - Fuentes del código: referencia/fuentes-del-codigo.md
