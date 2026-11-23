@@ -28,6 +28,8 @@ El procedimiento incluye criterios derivados de Hotelling T², Mahalanobis robus
 
 El [análisis comparativo de métodos de AD](metodos-dominio.md) amplía esta implementación con enfoques por rangos, geometría, densidad, leverage y fiabilidad predictiva. Explica la diferencia entre un **umbral de similitud** y un **umbral calibrado sobre el error**, y confronta la discusión sobre extrapolación con la literatura académica y el caso OECD QSAR Toolbox.
 
+Para la justificación regulatoria, consultar también el [marco OECD de evaluación de modelos y predicciones](marco-oecd.md), que diferencia la definición de AD de la aceptación de una predicción individual.
+
 Las tres métricas del pipeline no bastan para afirmar que un compuesto está validado para un endpoint o mecanismo. Antes de elegir un umbral, comprobar su relación empírica con los errores en predicciones independientes.
 
 ## Similitud estructural
