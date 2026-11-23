@@ -144,3 +144,53 @@ La calibración describe correspondencia entre probabilidades previstas y frecue
 En el ejemplo binario del capítulo, comprobar la etiqueta correspondiente a model.classes_[1] antes de interpretar predict_proba(... )[:, 1] como probabilidad de la clase positiva. ROC-AUC y average precision requieren positivos y negativos para la interpretación habitual; una partición sin ambas clases puede producir métricas indefinidas.
 
 Para errores heterogéneos, reportar métricas por scaffold, rango de endpoint y condición de dominio de aplicabilidad, además de un resumen global.
+
+## Gráficos diagnósticos de regresión y clasificación
+
+Para regresión, ejecutar después de obtener `pred = model.predict(X_test)` y `y_test` numérico:
+
+~~~python
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+obs = np.asarray(y_test, dtype=float).ravel()
+estimated = np.asarray(pred, dtype=float).ravel()
+valid = np.isfinite(obs) & np.isfinite(estimated)
+plot_df = pd.DataFrame({"Observado": obs[valid], "Predicho": estimated[valid]})
+plot_df["Residuo"] = plot_df["Observado"] - plot_df["Predicho"]
+
+fig, ax = plt.subplots(figsize=(6, 5))
+sns.scatterplot(data=plot_df, x="Observado", y="Predicho", ax=ax)
+limits = [plot_df[["Observado", "Predicho"]].min().min(),
+          plot_df[["Observado", "Predicho"]].max().max()]
+ax.plot(limits, limits, "k--", lw=1)
+ax.set(title="Predicción externa: observado vs. predicho")
+plt.tight_layout()
+plt.show()
+
+fig, ax = plt.subplots(figsize=(6, 4))
+sns.scatterplot(data=plot_df, x="Predicho", y="Residuo", ax=ax)
+ax.axhline(0, color="black", ls="--")
+ax.set(title="Residuos en el conjunto de evaluación")
+plt.tight_layout()
+plt.show()
+~~~
+
+Para clasificación, **recalcular** `pred` con el clasificador antes de ejecutar:
+
+~~~python
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+labels = sorted(set(y_test) | set(pred))
+cm = confusion_matrix(y_test, pred, labels=labels)
+fig, ax = plt.subplots(figsize=(5, 4))
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
+            xticklabels=labels, yticklabels=labels, ax=ax)
+ax.set(xlabel="Predicción", ylabel="Observado", title="Matriz de confusión")
+plt.tight_layout()
+plt.show()
+~~~
