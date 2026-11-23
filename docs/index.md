@@ -36,3 +36,7 @@ disponible públicamente.
     predicciones no son evidencia experimental, consejo médico ni una decisión
     regulatoria autónoma. Revisa la [validación](evaluacion/validacion.md)
     antes de interpretar cualquier resultado.
+
+## Obtención de información química y datasets
+
+La sección [Fuentes y búsqueda molecular](datos/fuentes-y-busqueda.md) explica cómo consultar PubChem, ChEMBL, TDC, MoleculeNet, ZINC, EPA DSSTox y NCI CIR mediante los módulos actuales de PharmaToxAI. Para preparar datos destinados a QSAR, consultar [Construcción de datasets](datos/construccion-datasets.md).
