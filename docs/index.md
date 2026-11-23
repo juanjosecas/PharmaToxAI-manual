@@ -7,12 +7,14 @@ reproducible.
 
 ## Recorrido de aprendizaje
 
-1. [Instala el entorno y fija las versiones](introduccion/instalacion.md).
+1. [Instala el paquete](introduccion/instalacion.md), [elige un entorno](introduccion/entornos.md) y [comprueba la instalación](introduccion/verificacion.md).
 2. [Define la pregunta y el endpoint](introduccion/primer-qsar.md).
 3. [Prepara y documenta los datos](preparacion/datasets.md).
 4. [Entrena un baseline sin fuga de información](modelado/entrenamiento.md).
 5. [Valida el modelo y sus límites](evaluacion/validacion.md).
 6. Ejecuta el [tutorial con datos sintéticos](tutoriales/01-primer-qsar.md).
+
+Para entrenar con NVIDIA, consultar [configuración GPU](introduccion/gpu.md). La [correspondencia entre capítulos y fuentes del código](referencia/fuentes-del-codigo.md) documenta el material técnico reutilizable para las próximas entregas.
 
 ## Alcance
 
