@@ -46,3 +46,20 @@ ax.set(title="Valores de referencia para read-across", ylabel="Endpoint ficticio
 plt.tight_layout()
 plt.show()
 ~~~
+
+## Similitud estructural con el módulo de visualización
+
+~~~python
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import fingerprint_similarity_matrix
+
+fig, ax = fingerprint_similarity_matrix(
+    reference_smiles, fingerprint_type="morgan",
+    radius=ra.radius, n_bits=ra.n_bits,
+)
+if fig is not None:
+    ax.set_title("Similitud Tanimoto de moléculas de referencia")
+    plt.show()
+~~~
+
+La matriz muestra similitudes de referencia entre sí; no son pesos del modelo ni una evaluación predictiva de read-across.
