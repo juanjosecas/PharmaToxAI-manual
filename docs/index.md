@@ -10,8 +10,8 @@ reproducible.
 1. [Instala el paquete](introduccion/instalacion.md), [elige un entorno](introduccion/entornos.md) y [comprueba la instalación](introduccion/verificacion.md).
 2. [Define la pregunta y el endpoint](introduccion/primer-qsar.md).
 3. Recorre el [Bloque A — Preparación molecular y exploración](preparacion/index.md): carga, EDA, curación, featurización y limpieza.
-4. [Entrena un baseline sin fuga de información](modelado/entrenamiento.md).
-5. [Valida el modelo y sus límites](evaluacion/validacion.md).
+4. Desarrolla el [Bloque B — Modelado y validación](modelado/index.md): particiones, entrenamiento clásico y redes neuronales.
+5. Evalúa [métricas](evaluacion/metricas.md) y [dominio de aplicabilidad](evaluacion/dominio-aplicabilidad.md) sobre test externo.
 6. Ejecuta el [tutorial con datos sintéticos](tutoriales/01-primer-qsar.md).
 
 Para entrenar con NVIDIA, consultar [configuración GPU](introduccion/gpu.md). La [correspondencia entre capítulos y fuentes del código](referencia/fuentes-del-codigo.md) documenta el material técnico reutilizable para las próximas entregas.
