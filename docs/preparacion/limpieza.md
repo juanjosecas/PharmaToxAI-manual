@@ -175,3 +175,27 @@ plt.show()
 ~~~
 
 La imputación posterior a los filtros elimina NA del conjunto de entrenamiento; este gráfico describe las columnas retenidas, no valida el desempeño del modelo.
+
+## Gráfico integrado de comparación de distribuciones
+
+La función integrada compara una variable antes y después de la limpieza, usando los valores del ejemplo:
+
+~~~python
+import numpy as np
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import plot_distribution_comparison
+
+shared = X_train.columns.intersection(train.columns)
+if len(shared):
+    col = shared[0]
+    before = X_train[col].replace([np.inf, -np.inf], np.nan).dropna().to_numpy()
+    after = train[col].replace([np.inf, -np.inf], np.nan).dropna().to_numpy()
+    if len(before) and len(after):
+        fig, axes = plot_distribution_comparison(
+            before, after, title=f"Distribución antes/después: {col}",
+            xlabel=col, labels=("Original", "Limpio")
+        )
+        plt.show()
+~~~
+
+No confundir el cambio de distribución con una mejora del desempeño predictivo.
