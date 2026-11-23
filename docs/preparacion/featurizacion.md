@@ -135,3 +135,34 @@ fingerprint_bit_density() calcula la media por fila: pasar **solo columnas binar
 El cociente \(p/n\) resume dimensionalidad relativa, pero no determina por sí solo la generalización. Un fingerprint de 2048 bits con pocos compuestos exige regularización y validación cuidadosa. La distancia euclidiana entre descriptores escalados y Tanimoto sobre bits comparan geometrías diferentes.
 
 Los descriptores electrónicos xTB dependen también de conformación, carga, estado de espín, método y solvente. Compararlos con variables 2D requiere registrar esa configuración y la política de fallos. Una similitud estructural alta no implica similitud farmacológica: pueden existir activity cliffs.
+
+## Visualización de descriptores y fingerprints
+
+Continuación del ejemplo que construye `features` y `fp`. Se seleccionan columnas numéricas para evitar incluir identificadores.
+
+~~~python
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.set_theme(style="whitegrid")
+numeric = features.select_dtypes(include="number").replace([np.inf, -np.inf], np.nan)
+cols = numeric.columns[numeric.notna().sum() >= 3][:12]
+if len(cols) >= 2:
+    fig, ax = plt.subplots(figsize=(9, 7))
+    sns.heatmap(numeric[cols].corr(), cmap="vlag", center=0, ax=ax)
+    ax.set_title("Correlación entre descriptores RDKit")
+    plt.tight_layout()
+    plt.show()
+
+fp_cols = [c for c in fp.columns if c.startswith("MorganFP_")]
+if fp_cols:
+    density = fp[fp_cols].apply(pd.to_numeric, errors="coerce").mean(axis=1)
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.histplot(density.dropna(), bins=20, ax=ax)
+    ax.set(xlabel="Fracción de bits activos", title="Densidad de fingerprints Morgan")
+    plt.tight_layout()
+    plt.show()
+~~~
+
+Los bits Morgan son variables binarias con colisiones de hashing; la correlación entre bits no demuestra identidad de fragmentos.
