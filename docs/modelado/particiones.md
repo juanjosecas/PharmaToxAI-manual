@@ -69,3 +69,67 @@ Registrar además la distribución por scaffold, densidad de similitud interpart
 En validación cruzada, conservar el principio estructural del holdout: un split scaffold externo acompañado de KFold aleatorio interno estima una tarea distinta.
 
 **Fuente:** [splitting.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/splitting.py).
+
+
+## Fundamentos y parámetros de las particiones
+
+Sea un dataset con \(n\) moléculas. La fracción de test indica un **objetivo de tamaño**:
+
+$$
+n_{\mathrm{test}}\approx \lfloor n\,f_{\mathrm{test}}\rfloor,\qquad
+n_{\mathrm{train}}=n-n_{\mathrm{test}}
+$$
+
+Para un split aleatorio, cada fila puede asignarse independientemente, pero el resultado depende de la semilla. La reproducibilidad de random_state no corrige un diseño experimental inadecuado. Al mantener agrupaciones químicas completas, el tamaño real puede diferir del objetivo.
+
+### Estratificación del endpoint
+
+En regresión, stratified_split divide la actividad en cuantiles mediante qcut. Para cada bin \(b\), busca conservar aproximadamente su frecuencia relativa:
+
+$$
+\frac{n_{b,\mathrm{train}}}{n_{\mathrm{train}}}
+\approx
+\frac{n_{b,\mathrm{test}}}{n_{\mathrm{test}}}
+$$
+
+El parámetro n_bins es el número **solicitado** de intervalos, no necesariamente el número conseguido: qcut puede reducirlo si hay cuantiles repetidos. Demasiados bins producen estratos con menos observaciones que las necesarias para repartirlos; pocos bins ocultan heterogeneidad de la respuesta. Stratified splitting no garantiza separación de análogos.
+
+### Agrupación por similitud estructural
+
+Para fingerprints binarios \(A,B\), la similitud Tanimoto es
+
+$$
+T(A,B)=\frac{|A\cap B|}{|A\cup B|},\qquad d(A,B)=1-T(A,B)
+$$
+
+En scaffold_split, un scaffold Bemis–Murcko define un grupo de moléculas cíclicas. Para moléculas acíclicas sin scaffold, scaffold_group_keys utiliza fingerprints Morgan, radio 2 y 2048 bits, y agrupa por componentes conectados cuando \(T\geq\) acyclic_similarity_threshold. Con 0.8 se unen análogos que alcanzan 80 % de similitud bajo esa representación. Debido a transitividad, **no implica** que todos los pares de un mismo grupo superen 0.8. El coste de comparar \(m\) moléculas acíclicas crece aproximadamente como \(O(m^2)\).
+
+En Butina, distance_cutoff es una **distancia**, no similitud. Su valor predeterminado 0.3 corresponde al criterio local \(d\leq0.3\), equivalente a \(T\geq0.7\) en Morgan/Tanimoto; el algoritmo y el armado de clusters no equivalen al procedimiento de componentes conectados de scaffold_split.
+
+### Kennard–Stone: cobertura geométrica
+
+La implementación actual estandariza los descriptores y comienza por el punto más próximo al centroide. Luego añade iterativamente una observación que maximiza su distancia mínima al conjunto seleccionado:
+
+$$
+i^*=\arg\max_{i\notin S}\min_{j\in S}\lVert z_i-z_j\rVert_2
+$$
+
+La función asigna los puntos seleccionados a **test**; esta elección de implementación merece documentarse porque otros flujos Kennard–Stone construyen primero el conjunto de calibración/entrenamiento. El escalado se estima sobre **todo el dataset antes de seleccionar**: sirve para diseño de partición basado en covariables, pero no debe confundirse con un escalador entrenado sin acceso al test para el modelo predictivo.
+
+### Parámetros: efecto y diagnóstico
+
+| Parámetro | Qué controla | Qué verificar |
+| --- | --- | --- |
+| test_size | Fracción objetivo del holdout | Tamaño final y cantidad de grupos completos |
+| random_state | Reproducibilidad del azar | Sensibilidad entre semillas; no garantiza representatividad |
+| n_bins | Resolución de estratificación | Número real de bins y observaciones por bin |
+| acyclic_similarity_threshold | Agrupación de acíclicas por Tanimoto | Tamaño de componentes, puentes transitivos |
+| radius, n_bits | Representación Morgan en Butina | Dependencia del criterio de similitud |
+| distance_cutoff | Corte de distancia en Butina | No confundir con similitud Tanimoto |
+| descriptor_cols | Espacio para Kennard–Stone | NaN, escala y dominio químico cubierto |
+
+**Particiones diferentes estiman objetivos diferentes.** El rendimiento aleatorio suele aproximarse a interpolación química, mientras que el scaffold split mide extrapolación a otros esqueletos bajo las reglas de agrupamiento elegidas. Ninguno representa automáticamente generalización temporal o interensayo.
+
+### Recomendación de diagnóstico
+
+Guardar ID, grupo, método, semilla y asignación de cada registro. Verificar además la distribución del endpoint, la mínima distancia train–test, identidad química compartida y proporción de grupos grandes. Si se particiona a nivel de grupos, la CV interna también debe respetar grupos para estimar una tarea comparable.
