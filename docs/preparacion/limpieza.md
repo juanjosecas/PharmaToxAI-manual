@@ -150,3 +150,28 @@ f_k(\mathrm{Transform}_{\hat\theta_k}(X_{{\rm val},k}))
 $$
 
 Esto incluye imputación, escalado, PCA y filtros supervisados. Guardar umbrales, columnas retenidas, orden y parámetros aprendidos permite reutilizar el procesamiento sobre nuevas moléculas.
+
+## Diagnóstico gráfico de la limpieza
+
+Comparar porcentaje de faltantes antes y después de los filtros, usando `X_train` y `train` del ejemplo.
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+missing = pd.concat([
+    X_train.isna().mean().rename("Antes"),
+    train.isna().mean().rename("Después")
+], axis=1).fillna(0)
+long = missing.reset_index(names="Descriptor").melt(
+    id_vars="Descriptor", var_name="Etapa", value_name="Fracción faltante"
+)
+fig, ax = plt.subplots(figsize=(8, max(3, 0.35 * len(missing))))
+sns.barplot(data=long, y="Descriptor", x="Fracción faltante", hue="Etapa", ax=ax)
+ax.set(title="Valores ausentes por descriptor", xlim=(0, 1))
+plt.tight_layout()
+plt.show()
+~~~
+
+La imputación posterior a los filtros elimina NA del conjunto de entrenamiento; este gráfico describe las columnas retenidas, no valida el desempeño del modelo.
