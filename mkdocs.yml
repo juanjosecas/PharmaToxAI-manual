@@ -40,13 +40,20 @@ nav:
       - Featurización: preparacion/featurizacion.md
       - Limpieza de características: preparacion/limpieza.md
       - Introducción a datasets: preparacion/datasets.md
-  - Modelado:
-      - Entrenamiento: modelado/entrenamiento.md
-  - Evaluación:
-      - Validación: evaluacion/validacion.md
+  - Modelado (Bloque B):
+      - Visión general: modelado/index.md
+      - Particiones: modelado/particiones.md
+      - Regresión y clasificación: modelado/entrenamiento-qsar.md
+      - Deep learning: modelado/deep-learning.md
+      - Fundamentos del entrenamiento: modelado/entrenamiento.md
+  - Evaluación (Bloque B):
+      - Métricas: evaluacion/metricas.md
+      - Dominio de aplicabilidad: evaluacion/dominio-aplicabilidad.md
+      - Validación y límites: evaluacion/validacion.md
   - Tutoriales:
       - Primer modelo reproducible: tutoriales/01-primer-qsar.md
       - Preparación molecular (Bloque A): tutoriales/02-preparacion-molecular.md
+      - Entrenamiento y validación (Bloque B): tutoriales/03-modelado-validacion.md
   - Referencia:
       - Bibliografía: referencia/bibliografia.md
       - Fuentes del código: referencia/fuentes-del-codigo.md
