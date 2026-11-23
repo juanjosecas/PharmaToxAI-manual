@@ -136,3 +136,26 @@ if not flags_bool.empty:
 ~~~
 
 Comprobar la semántica de cada columna: un indicador puede significar «fuera del dominio», por lo que la fracción verdadera **no necesariamente** es cobertura. Para evaluar relación entre AD y error, combinar por índice los indicadores con predicciones y valores experimentales externos, sin recalibrar umbrales en test.
+
+## Williams plot integrado: método alternativo
+
+`plot_applicability_domain` produce un **Williams plot**, basado en leverage y residuos estandarizados. **No acepta directamente** las salidas T²/MD²/kNN de `applicability_domain()`: se necesitan valores de leverage y residuos calculados por separado.
+
+~~~python
+import numpy as np
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import plot_applicability_domain
+
+# leverage, residuals_std e in_ad deben calcularse previamente
+# sobre observaciones alineadas. Ejemplo de uso:
+# fig, ax = plot_applicability_domain(
+#     leverage=np.asarray(leverage),
+#     residuals_std=np.asarray(residuals_std),
+#     in_ad=np.asarray(in_ad, dtype=bool),
+#     leverage_threshold=leverage_threshold,
+# )
+# ax.set_title("Williams plot: dominio de aplicabilidad")
+# plt.show()
+~~~
+
+La función dibuja líneas horizontales en ±3 residuos estandarizados y, si no se pasa `leverage_threshold`, usa (3\overline h). La elección de leverage, normalización de residuos y umbral requiere justificación específica del modelo.
