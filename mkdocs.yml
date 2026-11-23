@@ -50,10 +50,21 @@ nav:
       - Métricas: evaluacion/metricas.md
       - Dominio de aplicabilidad: evaluacion/dominio-aplicabilidad.md
       - Validación y límites: evaluacion/validacion.md
+  - Aplicaciones (Bloque C):
+      - Visión general: aplicaciones/index.md
+      - Persistencia de modelos: aplicaciones/persistencia.md
+      - Inferencia: aplicaciones/inferencia.md
+      - Clasificación multilabel: aplicaciones/multilabel.md
+      - Read-across: aplicaciones/read-across.md
+      - Alertas estructurales: aplicaciones/alertas.md
+      - Descriptores cuánticos: aplicaciones/descriptores-cuanticos.md
+      - Incertidumbre: aplicaciones/incertidumbre.md
+      - Informes QMRF: aplicaciones/informes-qmrf.md
   - Tutoriales:
       - Primer modelo reproducible: tutoriales/01-primer-qsar.md
       - Preparación molecular (Bloque A): tutoriales/02-preparacion-molecular.md
       - Entrenamiento y validación (Bloque B): tutoriales/03-modelado-validacion.md
+      - Persistencia e inferencia (Bloque C): tutoriales/04-persistencia-inferencia-qmrf.md
   - Referencia:
       - Bibliografía: referencia/bibliografia.md
       - Fuentes del código: referencia/fuentes-del-codigo.md
