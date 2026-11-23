@@ -112,7 +112,7 @@ donde \(\eta\) es learning_rate y \(\widehat g_t\) resume el paso adaptativo. ba
 
 ### Preprocesamiento de la validación interna
 
-**Verificado en nn_training.py:** train_nn_regression y train_nn_classification calculan imputación y StandardScaler **antes** de separar train y validation internos mediante prepare_data_loaders. Esto introduce información de las características de validación en el preprocesamiento (leakage no supervisado). Por lo tanto, la pérdida interna de validación no debe tratarse como una estimación completamente aislada. Para evaluaciones rigurosas, preparar los splits externos antes de entrenar, ajustar transformaciones únicamente sobre cada train y no seleccionar modelos por el test; si se requiere que el early stopping sea totalmente independiente, hay que corregir el orden dentro del entrenador.
+**Implementación corregida:** `train_nn_regression` y `train_nn_classification` separan entrenamiento y validación interna antes de ajustar imputación y `StandardScaler`. Los parámetros de preprocesamiento se aprenden en train y se reutilizan en validación. Las métricas globales del artefacto siguen calculándose sobre las observaciones suministradas al entrenamiento y no sustituyen un test externo.
 
 También las métricas de performance del artefacto se calculan sobre el conjunto proporcionado al entrenador, no sobre un test independiente.
 
