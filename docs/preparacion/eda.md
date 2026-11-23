@@ -151,3 +151,38 @@ Estos índices describen diversidad según Bemis–Murcko, no cobertura química
 | ¿Agrupamientos euclidianos impuestos? | n_clusters de K-Means |
 
 PCA, t-SNE, UMAP y clustering son **exploratorios**. No prueban generalización y no deben ajustarse a un test externo si sus transformaciones se usarán para modelar.
+
+## Visualización con Seaborn
+
+Los siguientes gráficos usan `df`, `numeric` y `coords` de los ejemplos anteriores.
+
+~~~python
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+sns.set_theme(style="whitegrid")
+fig, ax = plt.subplots(figsize=(7, 4))
+sns.histplot(data=df, x="Activity", kde=True, ax=ax)
+ax.set(title="Distribución del endpoint", xlabel="Actividad")
+plt.tight_layout()
+plt.show()
+
+if numeric.shape[1] >= 2:
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(numeric.iloc[:, :15].corr(method="spearman"),
+                cmap="vlag", center=0, ax=ax)
+    ax.set_title("Correlación de Spearman entre descriptores")
+    plt.tight_layout()
+    plt.show()
+
+if "coords" in globals() and coords.shape[1] >= 2:
+    pca_plot = coords.iloc[:, :2].copy()
+    pca_plot.columns = ["PC1", "PC2"]
+    fig, ax = plt.subplots(figsize=(6, 5))
+    sns.scatterplot(data=pca_plot, x="PC1", y="PC2", ax=ax)
+    ax.set_title("PCA exploratorio")
+    plt.tight_layout()
+    plt.show()
+~~~
+
+La visualización de PCA no demuestra separación predictiva ni justifica seleccionar features usando test.
