@@ -166,3 +166,35 @@ if fp_cols:
 ~~~
 
 Los bits Morgan son variables binarias con colisiones de hashing; la correlación entre bits no demuestra identidad de fragmentos.
+
+## Visualización integrada de fingerprints y descriptores
+
+~~~python
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import (
+    fingerprint_heatmap,
+    fingerprint_similarity_matrix,
+    descriptor_heatmap,
+)
+
+smiles = df["SMILES"].dropna().astype(str).head(20).tolist()
+
+fig, ax = fingerprint_heatmap(smiles, fingerprint_type="morgan",
+                              radius=2, n_bits=2048)
+if fig is not None:
+    ax.set_title("Activación de bits Morgan")
+    plt.show()
+
+fig, ax = fingerprint_similarity_matrix(smiles, fingerprint_type="morgan",
+                                        radius=2, n_bits=2048)
+if fig is not None:
+    ax.set_title("Similitud Tanimoto entre moléculas")
+    plt.show()
+
+fig, ax = descriptor_heatmap(smiles, normalize=True)
+if fig is not None:
+    ax.set_title("Descriptores moleculares normalizados")
+    plt.show()
+~~~
+
+Estas funciones **recalculan** fingerprints y descriptores desde SMILES; no representan necesariamente las columnas ya guardadas en `features` o `fp`. Igualar radio, número de bits y estandarización para comparar resultados.
