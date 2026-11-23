@@ -128,10 +128,10 @@ El entrenador devuelve un historial de pérdidas. La función `plot_training_his
 import matplotlib.pyplot as plt
 from pharmatoxai.visualization import plot_training_history
 
-history = artifact["training"].get("history")
+history = artifact.get("history")
 if history and "train_loss" in history:
     fig, axes = plot_training_history(history, metrics=["loss"])
     plt.show()
 ~~~
 
-Si el historial está guardado en otra clave de la versión instalada, inspeccionar `artifact["training"].keys()` y pasar el diccionario que contenga las series por época. La pérdida de validación interna tiene las limitaciones de preprocesamiento señaladas en este capítulo.
+Si el historial está guardado en otra clave de la versión instalada, inspeccionar `artifact.keys()` y pasar el diccionario que contenga las series por época. La pérdida de validación interna tiene las limitaciones de preprocesamiento señaladas en este capítulo.
