@@ -119,3 +119,19 @@ También las métricas de performance del artefacto se calculan sobre el conjunt
 ### Modelos pequeños y coste
 
 En datasets moleculares modestos suele haber pocos datos frente al número de parámetros. La comparación con Ridge, RandomForest y boosting debe realizarse bajo el mismo split y con incertidumbre del desempeño, en lugar de atribuir ventaja a la complejidad de la arquitectura.
+
+## Curvas de entrenamiento integradas
+
+El entrenador devuelve un historial de pérdidas. La función `plot_training_history` espera claves como `train_loss` y `val_loss`.
+
+~~~python
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import plot_training_history
+
+history = artifact["training"].get("history")
+if history and "train_loss" in history:
+    fig, axes = plot_training_history(history, metrics=["loss"])
+    plt.show()
+~~~
+
+Si el historial está guardado en otra clave de la versión instalada, inspeccionar `artifact["training"].keys()` y pasar el diccionario que contenga las series por época. La pérdida de validación interna tiene las limitaciones de preprocesamiento señaladas en este capítulo.
