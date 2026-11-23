@@ -114,3 +114,25 @@ El flag T2 se activa si la observación supera el máximo de T2_emp y T2_theory.
 Un criterio de dominio no debe calibrarse con moléculas que se usarán para calificar el desempeño externo. Informar cobertura AD y métricas por región (dentro/fuera), con denominadores suficientes. Las distancias PCA pueden perder información de fragmentos estructurales raros; complementar con similitud Tanimoto y scaffolds. Tres flags no representan tres probabilidades independientes.
 
 La pertenencia al AD y el intervalo de predicción calibrado responden preguntas distintas: cobertura estructural frente a error predictivo. Un compuesto dentro del dominio puede seguir presentando gran error por activity cliffs, ruido experimental o mecanismos ausentes.
+
+## Visualización de cobertura del dominio
+
+El siguiente bloque utiliza `ad_flags` producido por `applicability_domain`. Resume indicadores booleanos; no presupone nombres específicos de columnas.
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+flags_bool = ad_flags.select_dtypes(include="bool")
+if not flags_bool.empty:
+    coverage = flags_bool.mean().sort_values().rename("Fracción verdadera")
+    fig, ax = plt.subplots(figsize=(8, max(3, 0.4 * len(coverage))))
+    sns.barplot(x=coverage.values, y=coverage.index, ax=ax)
+    ax.set(xlim=(0, 1), xlabel="Fracción verdadera",
+           ylabel="Indicador", title="Indicadores de dominio de aplicabilidad")
+    plt.tight_layout()
+    plt.show()
+~~~
+
+Comprobar la semántica de cada columna: un indicador puede significar «fuera del dominio», por lo que la fracción verdadera **no necesariamente** es cobertura. Para evaluar relación entre AD y error, combinar por índice los indicadores con predicciones y valores experimentales externos, sin recalibrar umbrales en test.
