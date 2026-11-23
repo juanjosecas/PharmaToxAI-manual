@@ -2,10 +2,12 @@
 
 Manual práctico y progresivo para aplicar métodos QSAR a problemas de seguridad
 química. Empieza por [la guía de instalación](docs/introduccion/instalacion.md)
-y continúa con el [primer QSAR](docs/introduccion/primer-qsar.md), la
+con la [gestión de entornos](docs/introduccion/entornos.md), la [configuración GPU](docs/introduccion/gpu.md) y la [verificación](docs/introduccion/verificacion.md). Continúa con el [primer QSAR](docs/introduccion/primer-qsar.md), la
 [preparación de datos](docs/preparacion/datasets.md), el
 [entrenamiento](docs/modelado/entrenamiento.md) y la
 [evaluación](docs/evaluacion/validacion.md).
+
+La [guía de fuentes del código](docs/referencia/fuentes-del-codigo.md) vincula cada capítulo con módulos, documentación y notebooks del proyecto original. Los capítulos se amplían de forma modular y sus ejemplos deben verificarse contra una revisión concreta del código.
 
 El manual se publica con MkDocs Material y GitHub Pages. Consulta el
 [contenido completo](docs/index.md) o sigue el [tutorial reproducible](docs/tutoriales/01-primer-qsar.md).
