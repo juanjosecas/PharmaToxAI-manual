@@ -9,7 +9,7 @@ reproducible.
 
 1. [Instala el paquete](introduccion/instalacion.md), [elige un entorno](introduccion/entornos.md) y [comprueba la instalación](introduccion/verificacion.md).
 2. [Define la pregunta y el endpoint](introduccion/primer-qsar.md).
-3. [Prepara y documenta los datos](preparacion/datasets.md).
+3. Recorre el [Bloque A — Preparación molecular y exploración](preparacion/index.md): carga, EDA, curación, featurización y limpieza.
 4. [Entrena un baseline sin fuga de información](modelado/entrenamiento.md).
 5. [Valida el modelo y sus límites](evaluacion/validacion.md).
 6. Ejecuta el [tutorial con datos sintéticos](tutoriales/01-primer-qsar.md).
