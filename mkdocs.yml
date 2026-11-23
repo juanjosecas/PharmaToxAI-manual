@@ -38,6 +38,9 @@ nav:
       - GPU: introduccion/gpu.md
       - Verificación y diagnóstico: introduccion/verificacion.md
       - Primer QSAR: introduccion/primer-qsar.md
+  - Obtención de datos:
+      - Fuentes y búsqueda molecular: datos/fuentes-y-busqueda.md
+      - Construcción de datasets: datos/construccion-datasets.md
   - Preparación molecular (Bloque A):
       - Visión general: preparacion/index.md
       - Carga y auditoría: preparacion/carga-datos.md
