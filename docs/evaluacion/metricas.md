@@ -194,3 +194,23 @@ ax.set(xlabel="Predicción", ylabel="Observado", title="Matriz de confusión")
 plt.tight_layout()
 plt.show()
 ~~~
+
+## Diagnóstico integrado de residuos
+
+`plot_residuals_analysis` representa simultáneamente train y test. El bloque corresponde **solo a regresión** y necesita predicciones en ambos conjuntos.
+
+~~~python
+import numpy as np
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import plot_residuals_analysis
+
+pred_train = np.asarray(model.predict(X_train), dtype=float).ravel()
+pred_test = np.asarray(model.predict(X_test), dtype=float).ravel()
+fig, axes = plot_residuals_analysis(
+    np.asarray(y_train, dtype=float).ravel(), pred_train,
+    np.asarray(y_test, dtype=float).ravel(), pred_test,
+)
+plt.show()
+~~~
+
+Las predicciones de train son de resustitución y solo sirven para diagnosticar sobreajuste; no sustituyen las métricas externas.
