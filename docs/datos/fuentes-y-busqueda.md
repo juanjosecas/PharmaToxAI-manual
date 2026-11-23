@@ -184,3 +184,23 @@ if "Y" in ames.columns:
     plt.tight_layout()
     plt.show()
 ~~~
+
+## Representar moléculas recuperadas con PharmaToxAI
+
+Una vez resueltas las estructuras en SMILES, el módulo de visualización puede dibujarlas y comparar su similitud.
+
+~~~python
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import view_mol, fingerprint_similarity_matrix
+
+# SMILES de ejemplo: reemplazar por estructuras verificadas de la fuente.
+smiles = ["CCO", "CCCO", "CCOC"]
+view_mol(smiles[0], color_scheme="cpk", show_smiles=True)
+
+fig, ax = fingerprint_similarity_matrix(smiles, radius=2, n_bits=2048)
+if fig is not None:
+    ax.set_title("Similitud estructural de las moléculas recuperadas")
+    plt.show()
+~~~
+
+La representación 2D no valida identidad química: verificar correspondencia con CID, CHEMBL ID, estereoquímica y sal antes de interpretar la imagen.
