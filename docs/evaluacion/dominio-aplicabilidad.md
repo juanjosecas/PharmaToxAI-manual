@@ -83,7 +83,7 @@ $$
 
 El valor de k controla la escala local: k pequeño es sensible a vecinos individuales; k grande refleja la densidad de regiones más amplias. En espacios con alta dimensionalidad, distancias euclidianas pueden concentrarse.
 
-**Limitación de implementación:** al calibrar el umbral de entrenamiento, knn_mean_distance(Z_train, Z_train) incluye la propia observación entre vecinos, con distancia cero. Para moléculas nuevas no existe ese vecino idéntico por definición. El umbral kNN puede resultar demasiado bajo; para calibración rigurosa, excluir auto-vecinos o usar referencias de calibración separadas.
+**Implementación corregida:** la calibración kNN excluye la propia observación mediante búsqueda leave-one-out; en inferencia se conserva el mismo número efectivo de vecinos. El umbral continúa siendo el cuantil 0.95 de esas distancias y no depende de `alpha`.
 
 ### Umbrales actuales
 
