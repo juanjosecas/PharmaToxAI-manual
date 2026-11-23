@@ -48,3 +48,23 @@ La selección de umbrales **debe hacerse en validación, nunca en test**. La eva
 La selección del modelo, sus hiperparámetros y el umbral son etapas distintas. Con datasets reales con etiquetas parciales, es necesario definir previamente un procedimiento explícito para manejar missing labels; la función actual no lo implementa.
 
 **Fuente:** [multilabel.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/multilabel.py) y [guía técnica](https://github.com/juanjosecas/PharmaToxAI/blob/main/docs/multilabel.md).
+
+## Gráfico de prevalencia por endpoint
+
+La prevalencia debe calcularse en `y_train`, antes de optimizar umbrales. Este gráfico ayuda a detectar tareas raras o muy desbalanceadas.
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+prevalence = y_train.mean(axis=0).sort_values()
+fig, ax = plt.subplots(figsize=(8, max(3, 0.35 * len(prevalence))))
+sns.barplot(x=prevalence.values, y=prevalence.index, ax=ax)
+ax.set(xlim=(0, 1), xlabel="Fracción de positivos",
+       ylabel="Endpoint", title="Prevalencia por endpoint (train)")
+plt.tight_layout()
+plt.show()
+~~~
+
+Este bloque supone etiquetas binarias 0/1 completas, como exige actualmente `train_qsar_multilabel`.
