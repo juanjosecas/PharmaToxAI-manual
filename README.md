@@ -50,3 +50,7 @@ responsabilidades en el capítulo de [evaluación y validación](docs/evaluacion
 ## Bloque B — Modelado y validación
 
 El [Bloque B](docs/modelado/index.md) reúne particiones, regresión, clasificación, deep learning, [métricas](docs/evaluacion/metricas.md), [dominio de aplicabilidad](docs/evaluacion/dominio-aplicabilidad.md) y un [tutorial integrado](docs/tutoriales/03-modelado-validacion.md).
+
+## Bloque C — Aplicaciones e integraciones
+
+El [Bloque C](docs/aplicaciones/index.md) incluye persistencia, inferencia, multilabel, read-across, alertas, descriptores xTB, incertidumbre y QMRF. El [tutorial 04](docs/tutoriales/04-persistencia-inferencia-qmrf.md) reutiliza el modelo del tutorial 03.
