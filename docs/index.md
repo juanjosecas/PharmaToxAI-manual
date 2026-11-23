@@ -16,6 +16,8 @@ reproducible.
 
 Para entrenar con NVIDIA, consultar [configuración GPU](introduccion/gpu.md). La [correspondencia entre capítulos y fuentes del código](referencia/fuentes-del-codigo.md) documenta el material técnico reutilizable para las próximas entregas.
 
+Los [módulos de aplicaciones e integraciones (Bloque C)](aplicaciones/index.md) desarrollan persistencia, inferencia, multilabel, read-across, alertas, xTB, incertidumbre y QMRF. El [tutorial 04](tutoriales/04-persistencia-inferencia-qmrf.md) continúa el de modelado.
+
 ## Alcance
 
 La primera edición cubre un flujo QSAR supervisado básico. Los capítulos
