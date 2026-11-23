@@ -2,8 +2,8 @@
 
 Manual práctico y progresivo para aplicar métodos QSAR a problemas de seguridad
 química. Empieza por [la guía de instalación](docs/introduccion/instalacion.md)
-con la [gestión de entornos](docs/introduccion/entornos.md), la [configuración GPU](docs/introduccion/gpu.md) y la [verificación](docs/introduccion/verificacion.md). Continúa con el [primer QSAR](docs/introduccion/primer-qsar.md), la
-[preparación de datos](docs/preparacion/datasets.md), el
+con la [gestión de entornos](docs/introduccion/entornos.md), la [configuración GPU](docs/introduccion/gpu.md) y la [verificación](docs/introduccion/verificacion.md). Continúa con el [primer QSAR](docs/introduccion/primer-qsar.md), el
+[Bloque A de preparación molecular y exploración](docs/preparacion/index.md), el
 [entrenamiento](docs/modelado/entrenamiento.md) y la
 [evaluación](docs/evaluacion/validacion.md).
 
