@@ -161,3 +161,43 @@ plt.show()
 ~~~
 
 Estas métricas pertenecen al pipeline de Ridge del ejemplo, no al `artifact` de PharmaToxAI. No interpretar `performance_scope="training_resubstitution"` como validación externa.
+
+## Gráficos integrados de comparación y relevancia
+
+`plot_feature_importance` requiere importancias numéricas del estimador; el ejemplo solo se ejecuta cuando el modelo entrenado expone `feature_importances_`.
+
+~~~python
+import numpy as np
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import plot_feature_importance
+
+if hasattr(model, "feature_importances_"):
+    names = np.asarray(getattr(model, "feature_names_in_", X_train.columns))
+    fig, ax = plot_feature_importance(
+        feature_names=names,
+        importances=np.asarray(model.feature_importances_),
+        top_n=15,
+    )
+    ax.set_title("Importancia de características del modelo")
+    plt.show()
+~~~
+
+Para comparar modelos ya evaluados, construir un DataFrame con **métricas externas** y llamar:
+
+~~~python
+from pharmatoxai.visualization import plot_model_comparison_heatmap
+
+# Ejemplo de estructura: reemplazar valores por métricas de test real.
+# metrics_df = pd.DataFrame([
+#     {"model": "RF", "RMSE": ..., "MAE": ..., "R2": ...},
+#     {"model": "XGB", "RMSE": ..., "MAE": ..., "R2": ...},
+# ])
+# fig, ax = plot_model_comparison_heatmap(
+#     metrics_df, model_col="model",
+#     metric_cols=["RMSE", "MAE", "R2"],
+#     metrics_to_invert=["RMSE", "MAE"]
+# )
+# plt.show()
+~~~
+
+La importancia de árboles no es una estimación causal; puede distribuirse arbitrariamente entre descriptores correlacionados.
