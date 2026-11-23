@@ -1,121 +1,143 @@
-# Tutorial 02 — Dataset crudo hasta matriz molecular
+# Tutorial 02 — Pipeline A: estructuras → curación → featurización → split
 
-Ejemplo autocontenido con moléculas pequeñas **ficticias** y un endpoint artificial. No se entrena ni valida ningún modelo. El objetivo es comprobar el encadenamiento de carga → auditoría → curación → EDA → featurización → partición de ejemplo → limpieza.
+**Continúa desde el [mapa del pipeline](01-primer-qsar.md).** Las salidas se consumen sin modificaciones en el [tutorial 03](03-modelado-validacion.md). Todos los bloques se ejecutan en orden desde la raíz del manual.
 
-Requisitos: instalación de PharmaToxAI desde el código y un entorno con RDKit, NumPy y pandas. Ver [instalación](../introduccion/instalacion.md).
+## 1. Generar y auditar el dataset
 
-## 1. Dataset sintético
+Se emplean SMILES de moléculas pequeñas y un endpoint **artificial** calculado con RDKit. Esto permite verificar la infraestructura sin descargar datos ni atribuir significado biológico a los resultados.
 
 ~~~python
 from pathlib import Path
+import json
+import numpy as np
 import pandas as pd
-from pharmatoxai.data_io import load_data, save_data
+from rdkit import Chem, rdBase
+from rdkit.Chem import Descriptors
+from pharmatoxai.data_io import save_data, load_data
 
-Path("outputs").mkdir(exist_ok=True)
-raw = pd.DataFrame({
-    "ID": ["A", "B", "C", "D", "E", "F", "G", "H"],
-    "SMILES": ["CCO", "OCC", "CCN", "CC(=O)O", "CCCO", "CCOC", "c1ccccc1", "c1ccncc1"],
-    "Activity": [1.0, 1.2, 1.5, 1.4, 1.7, 1.8, 2.5, 2.2],
-})
-save_data(raw, "outputs/entrada.csv")
-df = load_data("outputs/entrada.csv", sep=",")
-assert len(df) == 8
+OUT = Path("outputs/qsar_pipeline")
+OUT.mkdir(parents=True, exist_ok=True)
+smiles = [
+    "CCO", "CCCO", "CCCCO", "CC(C)O", "CCOC", "CCOCC",
+    "CCN", "CCCN", "CCCCN", "CC(C)N", "CCNC", "CCNCC",
+    "CC(=O)O", "CCC(=O)O", "CCCC(=O)O", "CC(=O)OC",
+    "CC(=O)OCC", "CC(=O)N", "CCC(=O)N", "CC(C)=O",
+    "c1ccccc1", "Cc1ccccc1", "CCc1ccccc1", "Oc1ccccc1",
+    "COc1ccccc1", "Nc1ccccc1", "O=C(O)c1ccccc1",
+    "c1ccncc1", "Cc1ccncc1", "Oc1ccncc1",
+    "c1ccoc1", "c1ccsc1", "C1CCCCC1", "OC1CCCCC1",
+    "C1CCNCC1", "N1CCCCC1", "O1CCCCC1", "CC1CCCCC1",
+    "CC(=O)Nc1ccccc1", "CCOc1ccccc1",
+]
+rows = []
+for i, smi in enumerate(smiles):
+    mol = Chem.MolFromSmiles(smi)
+    assert mol is not None, smi
+    # Etiqueta determinista y artificial: no es una propiedad experimental.
+    y = 0.015 * Descriptors.MolWt(mol) - 0.009 * Descriptors.TPSA(mol)
+    rows.append({"ID": f"M{i:03d}", "SMILES": smi, "Activity": float(y)})
+raw = pd.DataFrame(rows)
+save_data(raw, str(OUT / "raw.csv"))
+df = load_data(str(OUT / "raw.csv"), sep=",")
+assert {"ID", "SMILES", "Activity"} <= set(df.columns)
+print(df.shape, df.isna().sum().to_dict())
 ~~~
 
-Los valores de `Activity` no son mediciones ni permiten inferencias SAR.
-
-## 2. Auditoría y curación
+## 2. Curación molecular y control de identidades
 
 ~~~python
-from pharmatoxai.eda import basic_counts
-from pharmatoxai.curation import PharmaToxCurator
+from pharmatoxai.curation import PharmaToxCurator, deduplicate_smiles
 
-print(basic_counts(df, "SMILES", "Activity"))
 curator = PharmaToxCurator(keep_stereo=True, tautomers=True, neutral=False)
 df["SMILES_clean"] = df["SMILES"].map(curator.curate)
-rejected = df.loc[df["SMILES_clean"].isna()].copy()
-valid = df.dropna(subset=["SMILES_clean"]).copy()
-print("Estructuras inválidas:", len(rejected))
-print("Identidades repetidas:", valid["SMILES_clean"].duplicated().sum())
-~~~
-
-Las representaciones `CCO` y `OCC` corresponden a la misma estructura. En un conjunto real debe decidirse cómo resolver ensayos repetidos **antes** de generar el split; en este ejemplo se utiliza una mediana solamente para ilustrar la operación, asumiendo endpoints comparables.
-
-~~~python
-from pharmatoxai.curation import deduplicate_smiles
-
+invalid = df.loc[df["SMILES_clean"].isna()].copy()
+valid = df.dropna(subset=["SMILES_clean", "Activity"]).copy()
 curated = deduplicate_smiles(
-    valid, smiles_col="SMILES_clean", target_col="Activity", method="median"
-)
+    valid, smiles_col="SMILES_clean",
+    target_col="Activity", method="median"
+).reset_index(drop=True)
 assert curated["SMILES_clean"].is_unique
-print("Estructuras únicas:", len(curated))
+assert len(curated) >= 20
+print("Rechazadas:", len(invalid), "Identidades únicas:", len(curated))
+curated.to_csv(OUT / "curated.csv", index=False)
 ~~~
 
-## 3. EDA y featurización
+En un estudio real, conservar resultados discordantes, información de ensayos y políticas de neutralización/tautomería. La agregación por mediana solo es defendible para mediciones comparables del mismo endpoint.
+
+## 3. EDA y gráficos integrados
 
 ~~~python
+import matplotlib.pyplot as plt
+import seaborn as sns
 from pharmatoxai.eda import target_summary
-from pharmatoxai.featurization import calculate_features
+from pharmatoxai.visualization import visualize_descriptor_distribution
 
 print(target_summary(curated, "Activity"))
+sns.histplot(data=curated, x="Activity", kde=True)
+plt.title("Distribución del endpoint artificial")
+plt.tight_layout()
+plt.show()
+
+fig, axes = visualize_descriptor_distribution(
+    curated["SMILES_clean"].tolist()
+)
+plt.show()
+~~~
+
+## 4. Featurización con PharmaToxAI
+
+~~~python
+from pharmatoxai.featurization import calculate_features
+
 features = calculate_features(
     curated, smiles_col="SMILES_clean",
     backend=["rdkit2d", "morgan"], verbose=False
 )
 assert len(features) == len(curated)
-assert features["SMILES_clean"].notna().all()
-print("Matriz:", features.shape)
+features.to_csv(OUT / "features.csv", index=False)
+print("Features:", features.shape)
 ~~~
 
-`calculate_features` incorpora características generadas. Seleccionar como predictoras **solo** columnas numéricas de descriptores/fingerprints: excluir `Activity`, `ID` y cualquier columna derivada del target.
+La matriz incluye columnas originales. **Excluir identificadores y target** de las predictoras; revisar también columnas de metadatos numéricos para evitar leakage.
 
-## 4. Ejemplo de separación y limpieza
+## 5. Split antes de ajustar limpieza
 
-Se usa una división explícita y determinista por posiciones para ilustrar la mecánica de preprocesamiento. **No es una estrategia de validación QSAR**, ni debe emplearse para estimar rendimiento o seleccionar modelos.
+Para este conjunto demostrativo, el split es aleatorio y fijo. En datos reales contrastar scaffold/cluster, fechas, lotes y series químicas; el test no participa en ninguna decisión posterior.
 
 ~~~python
-import numpy as np
-from pharmatoxai.feature_cleaning import (
-    remove_nan_inf, impute_median_train, remove_low_variance
+from pharmatoxai.splitting import random_split
+
+train_idx, test_idx, train_df, test_df = random_split(
+    features, test_size=0.25, random_state=42
 )
+assert set(train_idx).isdisjoint(set(test_idx))
+train_df.to_csv(OUT / "train_raw.csv", index=False)
+test_df.to_csv(OUT / "test_raw.csv", index=False)
+(OUT / "split.json").write_text(json.dumps({
+    "method": "random_split", "random_state": 42,
+    "train_index": [int(i) for i in train_idx],
+    "test_index": [int(i) for i in test_idx],
+    "rdkit_version": rdBase.rdkitVersion,
+}, indent=2), encoding="utf-8")
 
-excluded = {"Activity", "ID"}
-feature_cols = [
-    c for c in features.select_dtypes(include="number").columns
-    if c not in excluded
-]
-X = features[feature_cols].replace([np.inf, -np.inf], np.nan)
-train = X.iloc[:-2].copy()
-test = X.iloc[-2:].copy()
-
-train = remove_nan_inf(train, max_nan_frac=0.3)
-test = test[train.columns]
-train, test = impute_median_train(train, test)
-# Eliminar columnas sin dispersión, calculada solo en train.
-keep = remove_low_variance(train, threshold=0.0).columns
-train, test = train[keep], test[keep]
-
-assert train.columns.equals(test.columns)
-assert not train.isna().any().any()
-assert not test.isna().any().any()
-print("Train:", train.shape, "Test:", test.shape)
+plot_df = pd.concat([
+    train_df.assign(Conjunto="Train"),
+    test_df.assign(Conjunto="Test"),
+], ignore_index=True)
+sns.histplot(data=plot_df, x="Activity", hue="Conjunto",
+             element="step", stat="density", common_norm=False)
+plt.title("Endpoint por partición")
+plt.tight_layout()
+plt.show()
 ~~~
 
-Con un dataset tan pequeño algunas características pueden quedar constantes o indefinidas. El tutorial usa filtros simples y no selecciona variables por actividad. Para datasets reales, consultar [limpieza](../preparacion/limpieza.md) y el capítulo de particiones del bloque de modelado.
-
-## 5. Guardar resultados
+## 6. Verificación y contrato con el siguiente tutorial
 
 ~~~python
-from pharmatoxai.data_io import save_data
-
-save_data(curated, "outputs/curated.parquet")
-save_data(features, "outputs/features.parquet")
-save_data(train, "outputs/train_features.parquet")
-save_data(test, "outputs/test_features.parquet")
+for filename in ["raw.csv", "curated.csv", "features.csv",
+                 "train_raw.csv", "test_raw.csv", "split.json"]:
+    assert (OUT / filename).exists(), filename
+print("Preparación completa:", OUT.resolve())
 ~~~
 
-Registrar adicionalmente el commit de PharmaToxAI, la versión RDKit y las políticas de curación. Si se usa otro dataset, verificar identidades, alineación de filas, unidades, censura y estructura de replicados antes de reutilizar el procedimiento.
-
-**Estado del ejemplo:** redactado contra firmas del código en `main`; ejecución de integración no verificada en un entorno instalado.
-
-**Referencias:** [documentos del Bloque A](../preparacion/index.md), [notebook original de EDA](https://github.com/juanjosecas/PharmaToxAI/blob/main/notebooks/01_Exploratory%20Data%20Analysis.ipynb) y [notebook 02 de featurización](https://github.com/juanjosecas/PharmaToxAI/blob/main/notebooks/02_Featurization_Cleaning_Splitting%20of%20Molecular%20Dataset.ipynb).
+**Salida:** estructuras auditadas, matriz calculada y partición congelada. La imputación, selección por faltantes y eliminación de constantes se harán **solo con train** en el tutorial siguiente. No se reportan métricas predictivas en esta etapa.
