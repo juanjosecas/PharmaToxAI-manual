@@ -68,6 +68,7 @@ nav:
       - Clasificación multilabel: aplicaciones/multilabel.md
       - Read-across: aplicaciones/read-across.md
       - Alertas estructurales: aplicaciones/alertas.md
+      - Genotoxicidad (COM G11 e ICH M7): aplicaciones/genotoxicidad-com-g11-ich-m7.md
       - Descriptores cuánticos: aplicaciones/descriptores-cuanticos.md
       - Incertidumbre: aplicaciones/incertidumbre.md
       - Informes QMRF: aplicaciones/informes-qmrf.md
