@@ -69,3 +69,71 @@ print(-scores["test_score"])
 Si las moléculas están agrupadas por scaffold, sustituir KFold por un procedimiento de grupos y suministrar la identidad de cada grupo. La selección de representación también integra el proceso de optimización y no debe hacerse sobre test.
 
 **Fuentes:** [training.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/training.py), [documentación](https://github.com/juanjosecas/PharmaToxAI/blob/main/docs/training.md), notebooks 03 de regresión y clasificación.
+
+
+## Fundamentos del ajuste y elección de hiperparámetros
+
+El modelo busca una función \(f_\theta(x)\) que explique o prediga un endpoint a partir de descriptores. En regresión, una función objetivo general es
+
+$$
+\hat\theta=\arg\min_\theta
+\left[
+\frac{1}{n}\sum_{i=1}^n L(y_i,f_\theta(x_i))
++\lambda\,\Omega(\theta)
+\right]
+$$
+
+La función de pérdida \(L\) mide discrepancia, mientras que \(\Omega\) penaliza complejidad; \(\lambda\) controla la fuerza de regularización. Su significado **varía por estimador**. El parámetro regularization_strength de PharmaToxAI es una interfaz de configuración y no debe interpretarse como el mismo \(\lambda\) numérico para RandomForest, SVM o regresión lineal.
+
+### Regularización lineal y modelos de árboles
+
+Para Ridge, la penalización típica es \(\Omega(\beta)=\lVert\beta\rVert_2^2\). Para Lasso, \(\Omega(\beta)=\lVert\beta\rVert_1\), que favorece coeficientes exactamente nulos. Elastic Net combina ambas. La penalización requiere especial atención al escalado de las variables.
+
+En Random Forest, la capacidad está determinada por profundidad, número mínimo de muestras por hoja, número de árboles y subconjunto de características, no por una única penalización cuadrática. En boosting, learning rate, número de iteraciones, profundidad, regularización y early stopping afectan simultáneamente el sesgo y la varianza.
+
+### Validación cruzada y búsqueda
+
+En K-fold, los datos de desarrollo se dividen en \(K\) subconjuntos. Cada fold se predice con un estimador ajustado sin sus observaciones. La media de una métrica es
+
+$$
+\bar M_{\mathrm{CV}}=\frac{1}{K}\sum_{k=1}^{K}M_k
+$$
+
+Los folds no son muestras independientes: esta expresión resume el protocolo de evaluación, **no** constituye por sí sola un intervalo de confianza. RepeatedKFold repite asignaciones y permite estudiar sensibilidad, sin producir nuevas muestras biológicas.
+
+La búsqueda selecciona hiperparámetros \(\lambda^*\) optimizando una métrica interna:
+
+$$
+\lambda^*=\arg\min_{\lambda\in\Lambda}
+\widehat R_{\mathrm{CV}}(\lambda)
+$$
+
+Buscar muchos modelos y escoger el mínimo introduce sesgo de selección si se informa esa misma CV como rendimiento final. La CV anidada separa selección interna de evaluación externa. El test permanece intacto hasta la selección definitiva.
+
+| Parámetro de PharmaToxAI | Interpretación |
+| --- | --- |
+| cv | Número de folds de validación; limitado por observaciones y grupos |
+| cv_repeats | Número de repeticiones de particiones, cuando el entrenador correspondiente las admite |
+| scoring | Función para seleccionar configuraciones; debe representar el coste de los errores |
+| tune | Activa optimización de hiperparámetros |
+| search, n_iter | Tipo y presupuesto de búsqueda, relevantes principalmente para regresión |
+| run_rfe, rfe_step | Eliminación recursiva de features; su ajuste debe quedar dentro del protocolo de validación |
+| impute_nan | Política para completar faltantes |
+| target_transform | Transformación del endpoint; la inversión debe conservar la escala original al evaluar |
+| n_jobs | Paralelismo; puede competir con hilos internos de BLAS o estimadores |
+
+### Desbalance y SMOTE en clasificación
+
+Si hay \(n_+\) positivos y \(n_-\) negativos, la prevalencia es
+
+$$
+\pi=\frac{n_+}{n_++n_-}
+$$
+
+Una accuracy alta puede conseguirse ignorando la clase minoritaria. Las ponderaciones de clase modifican el peso de cada error. SMOTE crea puntos sintéticos por interpolación en el espacio de características; su operación depende de distancia y vecinos, y **no garantiza** que un vector sintetizado corresponda a una molécula físicamente realizable. Debe ajustarse dentro del fold de entrenamiento y evaluarse frente a la alternativa de class weights.
+
+Para QSAR estructural, utilizar grupos en la validación interna cuando el objetivo sea extrapolar a nuevas familias. Una selección de features hecha fuera de CV puede introducir optimismo incluso si test no participa.
+
+### Early stopping
+
+La detención temprana termina el ajuste cuando la pérdida sobre validación deja de mejorar durante una ventana de paciencia. Esta validación debe ser independiente del ajuste, incluida la transformación de features y selección supervisada. Su puntuación no reemplaza el holdout externo.
