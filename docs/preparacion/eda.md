@@ -70,3 +70,84 @@ Tras curación, pueden examinarse scaffolds, diversidad y regiones poco represen
 **Entregables:** tabla de calidad, definición del endpoint, distribución de actividad, descripción del espacio químico y decisiones registradas antes del modelado.
 
 **Fuente:** [eda.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/eda.py), [docs/eda.md](https://github.com/juanjosecas/PharmaToxAI/blob/main/docs/eda.md) y [notebook de EDA](https://github.com/juanjosecas/PharmaToxAI/blob/main/notebooks/01_Exploratory%20Data%20Analysis.ipynb).
+
+
+## Fundamentos estadísticos de los parámetros
+
+### Distribución del objetivo
+
+Para \(n\) observaciones de una variable continua, media y varianza muestral son
+
+$$
+\bar y=\frac{1}{n}\sum_i y_i,\qquad s^2=\frac{1}{n-1}\sum_i(y_i-\bar y)^2
+$$
+
+La mediana y el intervalo intercuartílico \(IQR=Q_{0.75}-Q_{0.25}\) son menos sensibles a valores extremos. Histogramas y KDE dependen del ancho de banda; una aparente multimodalidad debe verificarse cambiando esa resolución. Los estadísticos habituales requieren tratamiento especial para endpoints censurados.
+
+### Correlación de descriptores
+
+La correlación de Pearson mide dependencia lineal:
+
+$$
+r_{xy}=\frac{\sum_i(x_i-\bar x)(y_i-\bar y)}
+{\sqrt{\sum_i(x_i-\bar x)^2\sum_i(y_i-\bar y)^2}}
+$$
+
+Spearman calcula correlación sobre rangos y detecta asociaciones monotónicas. Kendall se basa en pares concordantes y discordantes; sin empates, \(\tau=(C-D)/\binom{n}{2}\). Ninguna de estas medidas implica causalidad ni detecta toda posible dependencia no lineal.
+
+### PCA: varianza y escalado
+
+Dada la matriz centrada \(X_c\), PCA diagonaliza su covarianza y obtiene puntuaciones proyectadas:
+
+$$
+\Sigma=\frac{X_c^\top X_c}{n-1},\quad \Sigma v_k=\lambda_k v_k,\quad z_{ik}=x_{i,c}^\top v_k
+$$
+
+La varianza explicada por cada componente es
+
+$$
+EVR_k=\frac{\lambda_k}{\sum_j\lambda_j}
+$$
+
+| Parámetro de run_pca | Interpretación | Consecuencia |
+| --- | --- | --- |
+| n_components | Número de componentes retenidos | 2 o 3 para visualizar; mayor número para conservar variabilidad |
+| scaler="standar" | Estandariza como \(z=(x-\mu)/\sigma\) | Reduce dominancia de descriptores con unidades grandes |
+| scaler="minmax" | Reescala al intervalo basado en mínimo y máximo | Sensible a extremos |
+| scaler="robust" | Mediana e IQR | Menos sensible a extremos marginales |
+| scaler=None | Mantiene magnitudes | Variables de gran varianza pueden dominar |
+| correct_nan=True | Reemplaza infinitos, filtra casi constantes e imputa mediana | En esta API se ajusta sobre los datos proporcionados |
+| var_threshold | Varianza mínima antes del PCA | Se evalúa antes del escalado; depende de las unidades |
+
+**Detalle de implementación:** el tercer resultado de run_pca es pca.singular_values_, **no autovalores** a pesar del nombre usado en la documentación previa. Los autovalores se recuperan como \(\lambda_k=s_k^2/(n-1)\) para la matriz centrada de entrada del PCA.
+
+### t-SNE y UMAP
+
+t-SNE construye probabilidades de vecindad en ambos espacios y minimiza su divergencia KL:
+
+$$
+KL(P\Vert Q)=\sum_{i\ne j}p_{ij}\log\frac{p_{ij}}{q_{ij}}
+$$
+
+La perplexity es \(2^{H(P_i)}\), con entropía en bits, y ajusta la escala de vecindad. Debe ser menor que el número de muestras. Las distancias entre grupos lejanos en un gráfico t-SNE no representan necesariamente distancias químicas reales.
+
+UMAP construye un grafo de vecindad y optimiza una representación de baja dimensión. La geometría depende de la métrica, vecinos, min_dist y semilla. La API run_umap solo expone n_components y metric, aplica StandardScaler internamente y fija la semilla a 42. La función chemical_space_embedding para fingerprints puede usar Jaccard **directamente sobre bits**, que constituye una transformación diferente.
+
+### Diversidad de scaffolds
+
+$$
+D_s=\frac{N_{\rm scaffolds}}{N_{\rm moléculas\ con\ scaffold}},\qquad
+f_{\max}=\frac{\max_k n_k}{N_{\rm moléculas\ con\ scaffold}}
+$$
+
+Estos índices describen diversidad según Bemis–Murcko, no cobertura química absoluta. compute_scaffolds() descarta resultados sin scaffold, incluidos compuestos acíclicos: registrar el denominador y comprobar alineación de índices antes de combinarlo con otra tabla.
+
+| Pregunta | Parámetro útil |
+| --- | --- |
+| ¿Dependencia lineal o monotónica? | method: pearson, spearman o kendall |
+| ¿Cuánta dispersión lineal conservar? | n_components |
+| ¿Influyen magnitudes y unidades? | scaler |
+| ¿Vecindarios químicos locales? | metric y perplexity, según método |
+| ¿Agrupamientos euclidianos impuestos? | n_clusters de K-Means |
+
+PCA, t-SNE, UMAP y clustering son **exploratorios**. No prueban generalización y no deben ajustarse a un test externo si sus transformaciones se usarán para modelar.
