@@ -29,3 +29,20 @@ En validación, evitar que una misma sustancia, tautómero o réplica figure en 
 El módulo también incluye utilidades para PubChem, ChEMBL y otras fuentes; sus consultas remotas requieren conectividad y sus resultados deben auditarse por endpoint, especies, condiciones y procedencia. Una similitud alta no garantiza actividad similar cuando existen activity cliffs.
 
 **Fuente:** [read_across.py](https://github.com/juanjosecas/PharmaToxAI/blob/main/src/pharmatoxai/read_across.py).
+
+## Gráfico de los análogos de referencia
+
+Para el ejemplo sintético, mostrar la distribución del endpoint de referencia. El gráfico no mide precisión predictiva.
+
+~~~python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+analogos = pd.DataFrame({"SMILES": reference_smiles, "Endpoint": reference_y})
+fig, ax = plt.subplots(figsize=(7, 4))
+sns.barplot(data=analogos, x="SMILES", y="Endpoint", ax=ax)
+ax.set(title="Valores de referencia para read-across", ylabel="Endpoint ficticio")
+plt.tight_layout()
+plt.show()
+~~~
