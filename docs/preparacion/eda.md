@@ -186,3 +186,35 @@ if "coords" in globals() and coords.shape[1] >= 2:
 ~~~
 
 La visualización de PCA no demuestra separación predictiva ni justifica seleccionar features usando test.
+
+## Visualizaciones integradas de PharmaToxAI
+
+El módulo `pharmatoxai.visualization` incluye gráficos moleculares que complementan los de Seaborn. Continuando con `df` y `coords` de este capítulo:
+
+~~~python
+import matplotlib.pyplot as plt
+from pharmatoxai.visualization import (
+    visualize_descriptor_distribution,
+    molecule_scatter_plot,
+)
+
+smiles = df["SMILES"].dropna().astype(str).head(30).tolist()
+if len(smiles) >= 3:
+    fig, axes = visualize_descriptor_distribution(smiles)
+    plt.show()
+
+# El PCA debe calcularse sobre exactamente las mismas filas que se representan.
+if {"SMILES", "Activity"}.issubset(df.columns) and "coords" in globals():
+    subset = df.loc[coords.index].dropna(subset=["SMILES"])
+    if len(subset) >= 2:
+        xy = coords.loc[subset.index].iloc[:, :2].to_numpy()
+        fig, ax = molecule_scatter_plot(
+            subset["SMILES"].tolist(), xy[:, 0], xy[:, 1],
+            mol_size=0.08,
+        )
+        ax.set(title="Espacio químico PCA con estructuras",
+               xlabel="PC1", ylabel="PC2")
+        plt.show()
+~~~
+
+El segundo gráfico superpone dibujos 2D de moléculas sobre coordenadas PCA: no representa conformaciones 3D ni distancias geométricas entre átomos.
